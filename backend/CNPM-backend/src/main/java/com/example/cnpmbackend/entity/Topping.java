@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import java.util.Set;
 
@@ -31,5 +32,6 @@ public class Topping {
     private boolean available = true;
 
     @ManyToMany(mappedBy = "toppings", fetch = FetchType.LAZY)
+    @JsonBackReference
     private Set<DrinkItem> drinkItems;
 }

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">CNPMFrontend</string>
+    <string name="drink_image_description">Hình ảnh của đồ uống</string>
 </resources>

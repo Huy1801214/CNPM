@@ -4,41 +4,49 @@ import com.google.gson.annotations.SerializedName;
 import java.util.Set;
 
 public class DrinkItem {
+    @SerializedName("id")
     private int id;
+
+    @SerializedName("name")
     private String name;
+
+    @SerializedName("description")
     private String description;
+
+    @SerializedName("price")
     private Double price;
 
     @SerializedName("imageUrl")
     private String imageUrl;
 
-    private DrinkCategory category;
+    @SerializedName("category")
+    private SimpleDrinkCategory category;
+
+    @SerializedName("available")
     private Boolean available;
-    private Set<Topping> toppings;
+
+    @SerializedName("toppings")
+    private Set<SimpleTopping> toppings;
 
     public DrinkItem() {}
 
+    // Getters
     public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-
     public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
     public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-
     public Double getPrice() { return price; }
-    public void setPrice(Double price) { this.price = price; }
-
     public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
-
-    public DrinkCategory getCategory() { return category; }
-    public void setCategory(DrinkCategory category) { this.category = category; }
-
+    public SimpleDrinkCategory getCategory() { return category; }
     public Boolean getAvailable() { return available; }
-    public void setAvailable(Boolean available) { this.available = available; }
+    public Set<SimpleTopping> getToppings() { return toppings; }
 
-    public Set<Topping> getToppings() { return toppings; }
-    public void setToppings(Set<Topping> toppings) { this.toppings = toppings; }
+    // Setters (Tùy chọn)
+    public void setId(int id) { this.id = id; }
+    public void setName(String name) { this.name = name; }
+    public void setDescription(String description) { this.description = description; }
+    public void setPrice(Double price) { this.price = price; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public void setCategory(SimpleDrinkCategory category) { this.category = category; }
+    public void setAvailable(Boolean available) { this.available = available; }
+    public void setToppings(Set<SimpleTopping> toppings) { this.toppings = toppings; }
 }

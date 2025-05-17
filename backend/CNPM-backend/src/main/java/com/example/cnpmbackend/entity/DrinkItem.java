@@ -2,6 +2,8 @@ package com.example.cnpmbackend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.util.Set;
 
@@ -30,6 +32,7 @@ public class DrinkItem {
     @JoinColumn(name = "category_id")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @JsonBackReference
     private DrinkCategory category;
 
     @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
@@ -43,5 +46,6 @@ public class DrinkItem {
     )
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @JsonManagedReference
     private Set<Topping> toppings;
 }

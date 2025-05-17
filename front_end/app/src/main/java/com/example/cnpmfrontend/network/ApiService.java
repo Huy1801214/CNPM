@@ -8,20 +8,21 @@ import retrofit2.http.GET;
 import retrofit2.http.Path;
 
 public interface ApiService {
-    // Đổi thành IP máy tính của bạn nếu chạy trên máy ảo Android
-    // 10.0.2.2 là localhost của máy host khi chạy trên Android Emulator
-    // Nếu chạy trên thiết bị thật, dùng IP của máy tính trong cùng mạng Wi-Fi
-    String BASE_URL = "http://10.0.2.2:8080/api/menu/"; // Thay port nếu cần
+    // QUAN TRỌNG: Đảm bảo đây là IP máy tính của bạn nếu chạy trên thiết bị thật,
+    // hoặc 10.0.2.2 nếu chạy trên Android Emulator.
+    // Và port phải đúng với backend Spring Boot của bạn (mặc định 8080).
+    // BASE_URL nên trỏ đến thư mục gốc của API, ví dụ: "http://10.0.2.2:8080/api/"
+    String BASE_URL = "http://10.0.2.2:8080/api/"; // Sửa nếu cần
 
-    @GET("categories")
+    @GET("menu/categories")
     Call<List<DrinkCategory>> getAllCategories();
 
-    @GET("drinks")
+    @GET("menu/drinks")
     Call<List<DrinkItem>> getAllDrinks();
 
-    @GET("drinks/category/{categoryId}")
+    @GET("menu/drinks/category/{categoryId}")
     Call<List<DrinkItem>> getDrinksByCategory(@Path("categoryId") int categoryId);
 
-    @GET("drinks/{drinkId}")
+    @GET("menu/drinks/{drinkId}")
     Call<DrinkItem> getDrinkById(@Path("drinkId") int drinkId);
 }

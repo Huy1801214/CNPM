@@ -1,12 +1,11 @@
 package com.example.cnpmbackend.controllers;
 
-
-import com.example.cnpmbackend.entity.DrinkCategory;
-import com.example.cnpmbackend.entity.DrinkItem;
+import com.example.cnpmbackend.dto.DrinkCategoryDTO; // Import DTO
+import com.example.cnpmbackend.dto.DrinkItemDTO;   // Import DTO
+import com.example.cnpmbackend.services.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.example.cnpmbackend.services.MenuService;
 
 import java.util.List;
 
@@ -18,29 +17,29 @@ public class MenuController {
     private MenuService menuService;
 
     @GetMapping("/categories")
-    public ResponseEntity<List<DrinkCategory>> getAllCategories() {
-        List<DrinkCategory> categories = menuService.getAllCategories();
+    public ResponseEntity<List<DrinkCategoryDTO>> getAllCategories() {
+        List<DrinkCategoryDTO> categories = menuService.getAllCategories();
         return ResponseEntity.ok(categories);
     }
 
     @GetMapping("/drinks")
-    public ResponseEntity<List<DrinkItem>> getAllDrinks() {
-        List<DrinkItem> drinks = menuService.getAllDrinks();
+    public ResponseEntity<List<DrinkItemDTO>> getAllDrinks() {
+        List<DrinkItemDTO> drinks = menuService.getAllDrinks();
         return ResponseEntity.ok(drinks);
     }
 
     @GetMapping("/drinks/category/{categoryId}")
-    public ResponseEntity<List<DrinkItem>> getDrinksByCategory(@PathVariable Integer categoryId) {
-        List<DrinkItem> drinks = menuService.getDrinksByCategoryId(categoryId);
-        if (drinks.isEmpty()) {
-            return ResponseEntity.noContent().build(); // Hoặc notFound() nếu category không tồn tại
+    public ResponseEntity<List<DrinkItemDTO>> getDrinksByCategory(@PathVariable Integer categoryId) {
+        List<DrinkItemDTO> drinks = menuService.getDrinksByCategoryId(categoryId);
+        if (drinks == null || drinks.isEmpty()) {
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(drinks);
     }
 
     @GetMapping("/drinks/{drinkId}")
-    public ResponseEntity<DrinkItem> getDrinkById(@PathVariable Integer drinkId) {
-        DrinkItem drink = menuService.getDrinkById(drinkId);
+    public ResponseEntity<DrinkItemDTO> getDrinkById(@PathVariable Integer drinkId) {
+        DrinkItemDTO drink = menuService.getDrinkById(drinkId);
         if (drink == null) {
             return ResponseEntity.notFound().build();
         }

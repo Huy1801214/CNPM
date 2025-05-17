@@ -1,23 +1,24 @@
 package com.example.cnpmfrontend.model;
 
 import com.google.gson.annotations.SerializedName;
-public class DrinkCategory {
+
+public class SimpleTopping {
     @SerializedName("id")
     private int id;
 
     @SerializedName("name")
     private String name;
 
-    @SerializedName("description")
-    private String description;
+    @SerializedName("price")
+    private Double price;
 
-    public DrinkCategory() {}
+    public SimpleTopping() {}
 
     public int getId() { return id; }
     public String getName() { return name; }
-    public String getDescription() { return description; }
+    public Double getPrice() { return price; }
 
     public void setId(int id) { this.id = id; }
     public void setName(String name) { this.name = name; }
-    public void setDescription(String description) { this.description = description; }
+    public void setPrice(Double price) { this.price = price; }
 }
