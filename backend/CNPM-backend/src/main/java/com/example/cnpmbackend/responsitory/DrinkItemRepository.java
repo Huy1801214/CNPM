@@ -35,5 +35,4 @@ public interface DrinkItemRepository extends JpaRepository<DrinkItem, Integer> {
 
     @Query("SELECT DISTINCT di FROM DrinkItem di LEFT JOIN FETCH di.toppings WHERE di.id = :drinkItemId")
     Optional<DrinkItem> findByIdWithToppings(@Param("drinkItemId") Integer drinkItemId);
-
 }
