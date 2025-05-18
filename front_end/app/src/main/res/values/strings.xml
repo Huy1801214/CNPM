@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">CNPMFrontend</string>
-    <string name="drink_image_description">Hình ảnh của đồ uống</string>
+    <string name="title_menu">Thực Đơn</string>
+    <string name="title_vouchers">Ưu Đãi</string>
+    <string name="title_cart">Giỏ Hàng</string>
+    <string name="title_account">Tài Khoản</string>
+    <string name="drink_image_description">Hình ảnh đồ uống</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

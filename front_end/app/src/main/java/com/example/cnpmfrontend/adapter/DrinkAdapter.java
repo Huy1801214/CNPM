@@ -87,7 +87,7 @@ public class DrinkAdapter extends RecyclerView.Adapter<DrinkAdapter.DrinkViewHol
         if (newDrinksList != null) {
             this.drinksList.addAll(newDrinksList);
         }
-        notifyDataSetChanged(); // Cân nhắc dùng DiffUtil cho hiệu suất tốt hơn với danh sách lớn
+        notifyDataSetChanged(); 
     }
 
     static class DrinkViewHolder extends RecyclerView.ViewHolder {

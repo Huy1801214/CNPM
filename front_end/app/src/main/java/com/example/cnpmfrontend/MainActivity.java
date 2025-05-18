@@ -1,114 +1,64 @@
 package com.example.cnpmfrontend;
 
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.view.MenuItem;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import com.example.cnpmfrontend.adapter.DrinkAdapter;
-import com.example.cnpmfrontend.model.DrinkItem;
-import com.example.cnpmfrontend.viewmodel.MenuViewModel;
-import java.util.ArrayList;
-import java.util.List;
+
+import com.example.cnpmfrontend.fragment.MenuFragment;
+import com.example.cnpmfrontend.fragment.VoucherFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
-    private MenuViewModel menuViewModel;
-    private DrinkAdapter drinkAdapter;
-    private RecyclerView recyclerViewMenu;
-    private ProgressBar progressBar;
-    private TextView textViewError;
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        recyclerViewMenu = findViewById(R.id.recyclerViewMenu);
-        progressBar = findViewById(R.id.progressBar);
-        textViewError = findViewById(R.id.textViewError);
+        bottomNavigationView = findViewById(R.id.bottom_navigation_view);
 
-        menuViewModel = new ViewModelProvider(this).get(MenuViewModel.class);
+        // Load fragment mặc định khi Activity được tạo lần đầu
+        if (savedInstanceState == null) {
+            loadFragment(new MenuFragment(), "MENU_FRAGMENT_TAG");
+            bottomNavigationView.setSelectedItemId(R.id.navigation_menu);
+        }
 
-        setupRecyclerView();
-        observeViewModel();
+        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                Fragment selectedFragment = null;
+                String tag = null;
+                int itemId = item.getItemId();
 
-        // Yêu cầu ViewModel tải dữ liệu đồ uống
-        menuViewModel.getAllDrinks(); // ViewModel sẽ kích hoạt việc gọi API
+                if (itemId == R.id.navigation_menu) {
+                    selectedFragment = new MenuFragment();
+                    tag = "MENU_FRAGMENT_TAG";
+                } else if (itemId == R.id.navigation_vouchers) {
+                    selectedFragment = new VoucherFragment();
+                    tag = "VOUCHER_FRAGMENT_TAG";
+                }
+                if (selectedFragment != null) {
+                    loadFragment(selectedFragment, tag);
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 
-    private void setupRecyclerView() {
-        // Khởi tạo adapter với một danh sách rỗng ban đầu
-        drinkAdapter = new DrinkAdapter(this, new ArrayList<>());
-        recyclerViewMenu.setLayoutManager(new LinearLayoutManager(this));
-        recyclerViewMenu.setAdapter(drinkAdapter);
-    }
-
-    private void observeViewModel() {
-        // Observe trạng thái loading
-        menuViewModel.getIsLoading().observe(this, isLoading -> {
-            if (isLoading != null) {
-                progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-                if (isLoading) {
-                    textViewError.setVisibility(View.GONE);
-                    recyclerViewMenu.setVisibility(View.GONE);
-                }
-            }
-        });
-
-        // Observe thông báo lỗi
-        menuViewModel.getErrorMessage().observe(this, errorMessage -> {
-            if (errorMessage != null && !errorMessage.isEmpty()) {
-                Log.e(TAG, "Error from ViewModel: " + errorMessage);
-                recyclerViewMenu.setVisibility(View.GONE);
-                progressBar.setVisibility(View.GONE);
-                textViewError.setText(errorMessage);
-                textViewError.setVisibility(View.VISIBLE);
-                // Bạn có thể hiển thị Toast ở đây nếu muốn
-                // Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_LONG).show();
-            } else {
-                // Nếu không có lỗi, và đã có dữ liệu thì ẩn textViewError
-                // (Logic này đã được xử lý trong drinks observer)
-            }
-        });
-
-        // Observe danh sách đồ uống từ ViewModel
-        menuViewModel.getAllDrinks().observe(this, drinks -> {
-            // Chỉ cập nhật UI nếu không đang loading và không có lỗi nào đang được hiển thị
-            Boolean isLoading = menuViewModel.getIsLoading().getValue();
-            String currentError = menuViewModel.getErrorMessage().getValue();
-
-            if ((isLoading == null || !isLoading)) { // Bỏ qua kiểm tra lỗi ở đây, để error observer xử lý
-                if (drinks != null && !drinks.isEmpty()) {
-                    Log.d(TAG, "Drinks data received for UI. Size: " + drinks.size());
-                    recyclerViewMenu.setVisibility(View.VISIBLE);
-                    textViewError.setVisibility(View.GONE);
-                    drinkAdapter.setDrinks(drinks);
-                } else if (drinks != null && drinks.isEmpty() && (currentError == null || currentError.isEmpty())) {
-                    // Danh sách rỗng và không có lỗi nào từ API
-                    Log.d(TAG, "Received empty drinks list and no API error.");
-                    recyclerViewMenu.setVisibility(View.GONE);
-                    textViewError.setText("Không có đồ uống nào để hiển thị.");
-                    textViewError.setVisibility(View.VISIBLE);
-                } else if (drinks == null && (currentError == null || currentError.isEmpty())) {
-                    // Dữ liệu null và không có lỗi nào từ API (có thể là trạng thái ban đầu)
-                    // Để observer lỗi xử lý nếu có lỗi thực sự
-                    Log.d(TAG, "Drinks list is null, no API error yet.");
-                    if (! (isLoading != null && isLoading) ) { // Chỉ hiển thị "Không có đồ uống" nếu không đang loading
-                        recyclerViewMenu.setVisibility(View.GONE);
-                        textViewError.setText("Không có đồ uống nào.");
-                        textViewError.setVisibility(View.VISIBLE);
-                    }
-                }
-                // Nếu drinks là null VÀ currentError có giá trị, thì errorMessage observer sẽ xử lý
-            }
-        });
+    private void loadFragment(Fragment fragment, String tag) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container, fragment);
+        fragmentTransaction.commit();
     }
 }

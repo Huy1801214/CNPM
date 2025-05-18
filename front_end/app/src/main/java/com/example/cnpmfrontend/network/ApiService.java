@@ -6,7 +6,7 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
-
+import com.example.cnpmfrontend.model.Voucher;
 public interface ApiService {
     // QUAN TRỌNG: Đảm bảo đây là IP máy tính của bạn nếu chạy trên thiết bị thật,
     // hoặc 10.0.2.2 nếu chạy trên Android Emulator.
@@ -25,4 +25,7 @@ public interface ApiService {
 
     @GET("menu/drinks/{drinkId}")
     Call<DrinkItem> getDrinkById(@Path("drinkId") int drinkId);
+
+    @GET("vouchers")
+    Call<List<Voucher>> getAllVouchers();
 }
