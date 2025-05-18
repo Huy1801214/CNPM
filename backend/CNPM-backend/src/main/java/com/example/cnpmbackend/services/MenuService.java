@@ -108,4 +108,21 @@ public class MenuService {
                 .map(this::mapToDrinkItemDTO)
                 .orElse(null);
     }
+    // Chức năng xóa đồ uống (Bảo)
+    @Transactional
+    public boolean deleteDrinkById(Integer drinkId) {
+        // Kiểm tra xem đồ uống có tồn tại không
+        if (!drinkItemRepository.existsById(drinkId)) {
+            // Nếu không tồn tại, trả về false
+            return false;
+        }
+        try {
+            // Xóa đồ uống nếu tồn tại
+            drinkItemRepository.deleteById(drinkId);
+            return true;
+        } catch (Exception e) {
+            // Nếu có lỗi xảy ra trong quá trình xóa, ném ra ngoại lệ
+            throw new RuntimeException("Lỗi khi xóa đồ uống với ID: " + drinkId, e);
+        }
+    }
 }

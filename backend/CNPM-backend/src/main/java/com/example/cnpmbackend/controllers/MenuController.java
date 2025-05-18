@@ -45,4 +45,22 @@ public class MenuController {
         }
         return ResponseEntity.ok(drink);
     }
+    //Chức năng xóa đồ uống (Bảo)
+    @DeleteMapping("/drinks/{drinkId}")
+    public ResponseEntity<?> deleteDrinkById(@PathVariable Integer drinkId) {
+        try {
+            // Kiểm tra xem đồ uống có tồn tại không
+            boolean deleted = menuService.deleteDrinkById(drinkId);
+            if (deleted) {
+                // Nếu xóa thành công, trả về mã 204 No Content
+                return ResponseEntity.noContent().build();
+            } else {
+                // Nếu không tìm thấy đồ uống với ID đã cho, trả về mã 404 Not Found
+                return ResponseEntity.status(404).body("Không tìm thấy đồ uống với ID: " + drinkId);
+            }
+        } catch (Exception e) {
+            // Nếu có lỗi xảy ra trong quá trình xóa, trả về mã 500 Internal Server Error
+            return ResponseEntity.status(500).body("Lỗi hệ thống khi xóa đồ uống: " + e.getMessage());
+        }
+    }
 }
