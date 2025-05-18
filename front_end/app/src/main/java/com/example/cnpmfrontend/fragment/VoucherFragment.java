@@ -1,5 +1,6 @@
 package com.example.cnpmfrontend.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,7 +19,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.cnpmfrontend.R;
 import com.example.cnpmfrontend.adapter.VoucherAdapter;
 import com.example.cnpmfrontend.model.Voucher;
+import com.example.cnpmfrontend.fragment.AddVoucherActivity;
 import com.example.cnpmfrontend.viewmodel.VoucherViewModel;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
@@ -30,6 +33,7 @@ public class VoucherFragment extends Fragment {
     private RecyclerView recyclerViewVouchers;
     private ProgressBar progressBarVouchers;
     private TextView textViewVoucherError;
+    private FloatingActionButton fabAddVoucher;
 
     public VoucherFragment() {
     }
@@ -48,8 +52,18 @@ public class VoucherFragment extends Fragment {
         recyclerViewVouchers = view.findViewById(R.id.recyclerViewVouchers);
         progressBarVouchers = view.findViewById(R.id.progressBarVouchers);
         textViewVoucherError = view.findViewById(R.id.textViewVoucherError);
+        fabAddVoucher = view.findViewById(R.id.fab_add_voucher);
 
         setupRecyclerView();
+
+        fabAddVoucher.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), AddVoucherActivity.class);
+                startActivity(intent);
+            }
+        });
+
         return view;
     }
 
@@ -60,6 +74,11 @@ public class VoucherFragment extends Fragment {
         if (voucherViewModel.getAllVouchers().getValue() == null) {
             voucherViewModel.fetchAllVouchers();
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 
     private void setupRecyclerView() {

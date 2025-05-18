@@ -69,4 +69,37 @@ public class VoucherRepository {
         }
         errorMessage.setValue(errorMsg);
     }
+
+    public LiveData<Boolean> createVoucher(Voucher voucher, MutableLiveData<String> errorMessageLiveData, MutableLiveData<Boolean> isLoadingLiveData) {
+        isLoadingLiveData.setValue(true);
+        MutableLiveData<Boolean> successLiveData = new MutableLiveData<>();
+
+        apiService.createVoucher(voucher).enqueue(new Callback<Voucher>() {
+            @Override
+            public void onResponse(Call<Voucher> call, Response<Voucher> response) {
+                isLoadingLiveData.setValue(false);
+                if (response.isSuccessful() && response.body() != null) {
+                    successLiveData.setValue(true);
+                    errorMessageLiveData.setValue(null); // Xóa lỗi cũ
+                    Log.d(TAG, "Voucher created successfully: " + response.body().getCode());
+                } else {
+                    successLiveData.setValue(false);
+                    handleApiError(response, null, errorMessageLiveData, "tạo voucher");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Voucher> call, Throwable t) {
+                isLoadingLiveData.setValue(false);
+                successLiveData.setValue(false);
+                String errorMsg = "Lỗi mạng khi tạo voucher: " + t.getMessage();
+                if (t instanceof java.net.ConnectException) {
+                    errorMsg = "Không thể kết nối đến server (tạo voucher).";
+                }
+                errorMessageLiveData.setValue(errorMsg);
+                Log.e(TAG, "createVoucher onFailure: " + errorMsg, t);
+            }
+        });
+        return successLiveData;
+    }
 }
