@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+import com.example.cnpmbackend.dto.VoucherRequestDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,10 +18,14 @@ public class VoucherController {
     @Autowired
     private VoucherService voucherService;
 
+    // Huy (add voucher) 5.1.8. Backend Spring Boot nhận request. Spring MVC định tuyến đến VoucherController.createVoucher().
     @PostMapping
-    public ResponseEntity<?> createVoucher(@RequestBody Voucher voucher) {
+    public ResponseEntity<?> createVoucher(@Valid @RequestBody VoucherRequestDTO voucherDTO) {
+        // 5.1.8. Jackson deserialize JSON payload thành Voucher (backend entity).
         try {
-            Voucher savedVoucher = voucherService.createVoucher(voucher);
+            Voucher savedVoucher = voucherService.createVoucher(voucherDTO);
+            // 5.1.12. VoucherController trả về ResponseEntity (200 OK) chứa savedVoucher,
+            // được Jackson serialize thành JSON response.
             return ResponseEntity.ok(savedVoucher);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
