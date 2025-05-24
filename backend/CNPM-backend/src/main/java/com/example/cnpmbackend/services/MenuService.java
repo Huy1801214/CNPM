@@ -1,17 +1,15 @@
 package com.example.cnpmbackend.services;
 
-import com.example.cnpmbackend.dto.DrinkCategoryDTO;
-import com.example.cnpmbackend.dto.DrinkItemDTO;
-import com.example.cnpmbackend.dto.SimpleCategoryDTO;
-import com.example.cnpmbackend.dto.SimpleToppingDTO;
+import com.example.cnpmbackend.dto.*;
 import com.example.cnpmbackend.entity.DrinkCategory;
 import com.example.cnpmbackend.entity.DrinkItem;
 import com.example.cnpmbackend.entity.Topping;
-import com.example.cnpmbackend.responsitory.DrinkCategoryRepository; // Sửa tên package nếu cần
-import com.example.cnpmbackend.responsitory.DrinkItemRepository;   // Sửa tên package nếu cần
+import com.example.cnpmbackend.responsitory.DrinkCategoryRepository;
+import com.example.cnpmbackend.responsitory.DrinkItemRepository;
+import com.example.cnpmbackend.responsitory.ToppingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; // Quan trọng cho LAZY loading
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
@@ -25,6 +23,9 @@ public class MenuService {
 
     @Autowired
     private DrinkItemRepository drinkItemRepository;
+
+    @Autowired
+    private ToppingRepository toppingRepository;
 
     private SimpleToppingDTO mapToSimpleToppingDTO(Topping topping) {
         if (topping == null) return null;
@@ -74,7 +75,6 @@ public class MenuService {
         );
     }
 
-
     @Transactional(readOnly = true)
     public List<DrinkCategoryDTO> getAllCategories() {
         return categoryRepository.findAll()
@@ -108,13 +108,29 @@ public class MenuService {
                 .map(this::mapToDrinkItemDTO)
                 .orElse(null);
     }
-    @Transactional
-    public void deleteDrink(Integer drinkId) {
-        // Kiểm tra xem món có tồn tại không
-        DrinkItem drinkItem = drinkItemRepository.findById(drinkId)
-                .orElseThrow(() -> new IllegalArgumentException("Món đồ uống với ID " + drinkId + " không tồn tại."));
 
-        // Xóa món đồ uống (các liên kết trong drink_toppings sẽ tự động được xóa do CascadeType.ALL)
-        drinkItemRepository.delete(drinkItem);
+    @Transactional
+    public String addDrink(DrinkItemRequestDTO dto) {
+        if (drinkItemRepository.existsByNameIgnoreCase(dto.getName())) {
+            return "Tên bị trùng";
+        }
+
+        DrinkCategory category = categoryRepository.findById(dto.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục"));
+
+        Set<Topping> toppings = toppingRepository.findAllById(dto.getToppingIds())
+                .stream().collect(Collectors.toSet());
+
+        DrinkItem item = new DrinkItem();
+        item.setName(dto.getName());
+        item.setDescription(dto.getDescription());
+        item.setPrice(dto.getPrice());
+        item.setImageUrl(dto.getImageUrl());
+        item.setAvailable(dto.getAvailable());
+        item.setCategory(category);
+        item.setToppings(toppings);
+
+        drinkItemRepository.save(item);
+        return "Thêm thành công";
     }
 }
