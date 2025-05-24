@@ -1,5 +1,6 @@
 package com.example.cnpmfrontend.fragment;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +10,10 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -34,6 +39,7 @@ public class VoucherFragment extends Fragment {
     private ProgressBar progressBarVouchers;
     private TextView textViewVoucherError;
     private FloatingActionButton fabAddVoucher;
+    private ActivityResultLauncher<Intent> addVoucherLauncher;
 
     public VoucherFragment() {
     }
@@ -42,6 +48,22 @@ public class VoucherFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         voucherViewModel = new ViewModelProvider(requireActivity()).get(VoucherViewModel.class);
+        addVoucherLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        // 3. Xử lý kết quả ở đây (thay thế cho onActivityResult cũ)
+                        if (result.getResultCode() == Activity.RESULT_OK) {
+                            // AddVoucherActivity đã đóng và báo hiệu thành công
+                            // Không cần kiểm tra requestCode nữa
+                            Log.d(TAG, "AddVoucherActivity returned RESULT_OK (New API), refreshing vouchers...");
+                            if (voucherViewModel != null) {
+                                voucherViewModel.fetchAllVouchers();
+                            }
+                        }
+                    }
+                });
     }
 
     @Nullable
@@ -55,12 +77,13 @@ public class VoucherFragment extends Fragment {
         fabAddVoucher = view.findViewById(R.id.fab_add_voucher);
 
         setupRecyclerView();
-
+        // Huy - add voucher
+        // 5.1.1. bắt sự kiện onClick(), tạo một Intent để khởi chạy AddVoucherActivity
         fabAddVoucher.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), AddVoucherActivity.class);
-                startActivity(intent);
+                addVoucherLauncher.launch(intent);
             }
         });
 

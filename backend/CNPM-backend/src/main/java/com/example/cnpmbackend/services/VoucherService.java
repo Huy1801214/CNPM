@@ -1,11 +1,11 @@
 package com.example.cnpmbackend.services;
 
+import com.example.cnpmbackend.dto.VoucherRequestDTO;
 import com.example.cnpmbackend.entity.Voucher;
 import com.example.cnpmbackend.responsitory.VoucherRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,18 +16,36 @@ public class VoucherService {
 
     // Huy (add voucher) 5.1.9. Backend thực hiện Bean Validation (nếu có @Valid) và
     // sau đó VoucherService thực hiện các kiểm tra logic nghiệp vụ (mã trùng, ngày hợp lệ).
-    public Voucher createVoucher(Voucher voucher) {
-        if (voucherRepository.findByCode(voucher.getCode()).isPresent()) {
-            throw new IllegalArgumentException("Voucher với mã " + voucher.getCode() + " đã tồn tại.");
+    public Voucher createVoucher(VoucherRequestDTO voucherDTO) { // Nhận DTO
+        if (voucherRepository.findByCode(voucherDTO.getCode()).isPresent()) {
+            throw new IllegalArgumentException("Voucher với mã " + voucherDTO.getCode() + " đã tồn tại.");
         }
-        if (voucher.getValidFrom().isAfter(voucher.getValidTo())) {
+        if (voucherDTO.getValidFrom().isAfter(voucherDTO.getValidTo())) {
             throw new IllegalArgumentException("Ngày bắt đầu không được sau ngày kết thúc.");
         }
-        if (voucher.getMaxUses() < 1) {
+        if (voucherDTO.getMaxUses() < 1) {
             throw new IllegalArgumentException("Số lần sử dụng tối đa phải lớn hơn hoặc bằng 1.");
         }
-        // 5.1.10. Nếu tất cả kiểm tra hợp lệ, VoucherService gọi VoucherRepository.save(voucher).
-        // 5.1.11. Hibernate (ORM) tạo và thực thi câu lệnh SQL INSERT để lưu Voucher entity vào database MySQL.
+
+        Voucher voucher = new Voucher();
+        // Map dữ liệu từ DTO sang Entity
+        // QUAN TRỌNG: KHÔNG map/set ID ở đây
+        voucher.setCode(voucherDTO.getCode());
+        voucher.setDescription(voucherDTO.getDescription());
+        voucher.setDiscount(voucherDTO.getDiscount());
+        voucher.setDiscountType(voucherDTO.getDiscountType());
+        voucher.setMaxUses(voucherDTO.getMaxUses());
+        voucher.setValidFrom(voucherDTO.getValidFrom());
+        voucher.setValidTo(voucherDTO.getValidTo());
+
+        // Xử lý isActive:
+        if (voucherDTO.getIsActive() != null) {
+            voucher.setActive(voucherDTO.getIsActive());
+        } else {
+            voucher.setActive(true); // Giá trị mặc định nếu client không gửi
+        }
+        // usedCount sẽ có giá trị mặc định là 0 từ entity
+
         return voucherRepository.save(voucher);
     }
 
@@ -38,12 +56,5 @@ public class VoucherService {
     public List<Voucher> getAllVouchers() {
         return voucherRepository.findAll();
     }
-
-    private boolean isVoucherValid(Voucher voucher) {
-        LocalDateTime now = LocalDateTime.now();
-        return voucher.isActive() &&
-                now.isAfter(voucher.getValidFrom()) &&
-                now.isBefore(voucher.getValidTo()) &&
-                voucher.getUsedCount() < voucher.getMaxUses();
-    }
+    
 }

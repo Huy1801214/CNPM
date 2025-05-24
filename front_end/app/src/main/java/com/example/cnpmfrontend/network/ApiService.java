@@ -14,8 +14,8 @@ public interface ApiService {
     // hoặc 10.0.2.2 nếu chạy trên Android Emulator.
     // Và port phải đúng với backend Spring Boot của bạn (mặc định 8080).
     // BASE_URL nên trỏ đến thư mục gốc của API, ví dụ: "http://10.0.2.2:8080/api/"
-//    String BASE_URL = "http://192.168.100.200:8080/api/";
-    String BASE_URL = "http://10.0.2.2:8080/api/"; // Sửa nếu cần
+    String BASE_URL = "http://192.168.100.221:8080/api/";
+//    String BASE_URL = "http://10.0.2.2:8080/api/"; // Sửa nếu cần
 
     @GET("menu/categories")
     Call<List<DrinkCategory>> getAllCategories();

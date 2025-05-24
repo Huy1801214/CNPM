@@ -1,13 +1,17 @@
 package com.example.cnpmfrontend.repository;
 
 import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+
 import com.example.cnpmfrontend.model.Voucher;
 import com.example.cnpmfrontend.network.ApiService;
 import com.example.cnpmfrontend.network.RetrofitClient;
+
 import java.io.IOException;
 import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -52,7 +56,9 @@ public class VoucherRepository {
     }
 
     private <T> void handleApiError(Response<T> response, MutableLiveData<T> data, MutableLiveData<String> errorMessage, String actionDescription) {
-        data.setValue(null);
+        if (data != null) {
+            data.setValue(null);
+        }
         String errorMsg = "Lỗi không xác định khi " + actionDescription + ".";
         if (response.errorBody() != null) {
             try {
@@ -70,20 +76,23 @@ public class VoucherRepository {
         errorMessage.setValue(errorMsg);
     }
 
-    public LiveData<Boolean> createVoucher(Voucher voucher, MutableLiveData<String> errorMessageLiveData, MutableLiveData<Boolean> isLoadingLiveData) {
+    // Huy (add voucher) 5.1.7. phuơng thức createVoucher trong VoucherRespository
+    public void createVoucher(Voucher voucher,
+                              MutableLiveData<Boolean> resultLiveData, // Thêm tham số này
+                              MutableLiveData<String> errorMessageLiveData,
+                              MutableLiveData<Boolean> isLoadingLiveData) {
         isLoadingLiveData.setValue(true);
-        MutableLiveData<Boolean> successLiveData = new MutableLiveData<>();
-
+        // Không cần tạo successLiveData ở đây nữa
         apiService.createVoucher(voucher).enqueue(new Callback<Voucher>() {
             @Override
             public void onResponse(Call<Voucher> call, Response<Voucher> response) {
                 isLoadingLiveData.setValue(false);
                 if (response.isSuccessful() && response.body() != null) {
-                    successLiveData.setValue(true);
-                    errorMessageLiveData.setValue(null); // Xóa lỗi cũ
+                    resultLiveData.setValue(true); // Cập nhật trực tiếp
+                    errorMessageLiveData.setValue(null);
                     Log.d(TAG, "Voucher created successfully: " + response.body().getCode());
                 } else {
-                    successLiveData.setValue(false);
+                    resultLiveData.setValue(false); // Cập nhật trực tiếp
                     handleApiError(response, null, errorMessageLiveData, "tạo voucher");
                 }
             }
@@ -91,7 +100,7 @@ public class VoucherRepository {
             @Override
             public void onFailure(Call<Voucher> call, Throwable t) {
                 isLoadingLiveData.setValue(false);
-                successLiveData.setValue(false);
+                resultLiveData.setValue(false); // Cập nhật trực tiếp
                 String errorMsg = "Lỗi mạng khi tạo voucher: " + t.getMessage();
                 if (t instanceof java.net.ConnectException) {
                     errorMsg = "Không thể kết nối đến server (tạo voucher).";
@@ -100,6 +109,6 @@ public class VoucherRepository {
                 Log.e(TAG, "createVoucher onFailure: " + errorMsg, t);
             }
         });
-        return successLiveData;
+        // Không trả về LiveData nữa vì chúng ta cập nhật MutableLiveData được truyền vào
     }
 }

@@ -13,7 +13,8 @@ public class VoucherViewModel extends ViewModel {
     private MutableLiveData<String> errorMessage = new MutableLiveData<>();
     private MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
 
-    private MutableLiveData<Boolean> createVoucherSuccess = new MutableLiveData<>();
+    private MutableLiveData<Boolean> _createVoucherSuccess = new MutableLiveData<>();
+    public LiveData<Boolean> createVoucherSuccess = _createVoucherSuccess;
 
     private LiveData<List<Voucher>> allVouchersLiveData;
 
@@ -39,17 +40,14 @@ public class VoucherViewModel extends ViewModel {
         return isLoading;
     }
 
+    // Huy (add voucher) 5.1.6. VoucherViewModel gọi phương thức createVoucher() trong VoucherRepository.
     public void createVoucher(Voucher voucher) {
-        voucherRepository.createVoucher(voucher, errorMessage, isLoading).observeForever(new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean success) {
-                createVoucherSuccess.setValue(success);
-            }
-        });
+        voucherRepository.createVoucher(voucher, _createVoucherSuccess, errorMessage, isLoading);
+
     }
 
     public LiveData<Boolean> getCreateVoucherSuccess() {
-        return createVoucherSuccess;
+        return _createVoucherSuccess;
     }
 
     public void clearErrorMessage() {

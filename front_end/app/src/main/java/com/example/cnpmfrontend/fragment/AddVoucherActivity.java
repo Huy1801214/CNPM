@@ -1,5 +1,6 @@
 package com.example.cnpmfrontend.fragment;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
@@ -13,12 +14,15 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
+
 import com.example.cnpmfrontend.R;
-import com.example.cnpmfrontend.model.Voucher; // Android Model
-import com.example.cnpmfrontend.viewmodel.VoucherViewModel; // ViewModel cho Voucher
+import com.example.cnpmfrontend.model.Voucher;
+import com.example.cnpmfrontend.viewmodel.VoucherViewModel;
 import com.google.android.material.textfield.TextInputEditText;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
@@ -65,8 +69,51 @@ public class AddVoucherActivity extends AppCompatActivity {
         observeViewModel();
     }
 
+    // Huy (add voucher) 5.1.4. thu thập dữ liệu, thực hiện validation cơ bản phía client, và tạo một đối tượng Voucher (Android model).
+    private void attemptAddVoucher() {
+        String code = editTextVoucherCode.getText().toString().trim();
+        String description = editTextVoucherDescription.getText().toString().trim();
+        String discountStr = editTextDiscountValue.getText().toString().trim();
+        String maxUsesStr = editTextMaxUses.getText().toString().trim();
+        String validFromStr = editTextValidFrom.getText().toString().trim();
+        String validToStr = editTextValidTo.getText().toString().trim();
+        String discountType = spinnerDiscountType.getSelectedItem().toString();
+        boolean isActive = checkBoxIsActive.isChecked();
+
+        if (TextUtils.isEmpty(code) || TextUtils.isEmpty(discountStr) || TextUtils.isEmpty(maxUsesStr) ||
+                TextUtils.isEmpty(validFromStr) || TextUtils.isEmpty(validToStr)) {
+            Toast.makeText(this, "Vui lòng điền đầy đủ các trường bắt buộc", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Double discountValue;
+        Integer maxUsesValue;
+        try {
+            discountValue = Double.parseDouble(discountStr);
+            maxUsesValue = Integer.parseInt(maxUsesStr);
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Giá trị giảm giá hoặc số lần sử dụng không hợp lệ", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Tạo đối tượng Voucher để gửi đi
+        Voucher newVoucher = new Voucher();
+        newVoucher.setCode(code);
+        newVoucher.setDescription(description);
+        newVoucher.setDiscount(discountValue);
+        newVoucher.setDiscountType(discountType);
+        newVoucher.setMaxUses(maxUsesValue);
+        newVoucher.setValidFrom(validFromStr);
+        newVoucher.setValidTo(validToStr);
+        newVoucher.setActive(isActive);
+
+        Log.d(TAG, "Attempting to add voucher: " + newVoucher.getCode());
+        // 5.1.5. AddVoucherActivity gọi phương thức CreateVoucher() trong VoucherViewModel, truyền đối tượng Voucher (Android model).
+        voucherViewModel.createVoucher(newVoucher);
+    }
+
     private void setupSpinner() {
-        String[] discountTypes = {"percentage", "fixed_amount"};
+        String[] discountTypes = {"percentage", "fixed"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, discountTypes);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -105,67 +152,38 @@ public class AddVoucherActivity extends AppCompatActivity {
         editText.setText(isoFormat.format(calendar.getTime()));
     }
 
-
-    private void attemptAddVoucher() {
-        // Validate input
-        String code = editTextVoucherCode.getText().toString().trim();
-        String description = editTextVoucherDescription.getText().toString().trim();
-        String discountStr = editTextDiscountValue.getText().toString().trim();
-        String maxUsesStr = editTextMaxUses.getText().toString().trim();
-        String validFromStr = editTextValidFrom.getText().toString().trim();
-        String validToStr = editTextValidTo.getText().toString().trim();
-        String discountType = spinnerDiscountType.getSelectedItem().toString();
-        boolean isActive = checkBoxIsActive.isChecked();
-
-        if (TextUtils.isEmpty(code) || TextUtils.isEmpty(discountStr) || TextUtils.isEmpty(maxUsesStr) ||
-                TextUtils.isEmpty(validFromStr) || TextUtils.isEmpty(validToStr)) {
-            Toast.makeText(this, "Vui lòng điền đầy đủ các trường bắt buộc", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        Double discountValue;
-        Integer maxUsesValue;
-        try {
-            discountValue = Double.parseDouble(discountStr);
-            maxUsesValue = Integer.parseInt(maxUsesStr);
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, "Giá trị giảm giá hoặc số lần sử dụng không hợp lệ", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Tạo đối tượng Voucher để gửi đi
-        Voucher newVoucher = new Voucher();
-        newVoucher.setCode(code);
-        newVoucher.setDescription(description);
-        newVoucher.setDiscount(discountValue);
-        newVoucher.setDiscountType(discountType.toUpperCase()); // Gửi dạng UPPERCASE nếu Enum backend là UPPERCASE
-        newVoucher.setMaxUses(maxUsesValue);
-        newVoucher.setValidFrom(validFromStr); // Backend sẽ parse chuỗi ISO 8601
-        newVoucher.setValidTo(validToStr);
-        newVoucher.setActive(isActive);
-        // newVoucher.setUsedCount(0); // Backend có thể tự xử lý
-
-        Log.d(TAG, "Attempting to add voucher: " + newVoucher.getCode());
-        voucherViewModel.createVoucher(newVoucher);
-    }
-
+    // 5.1.15. AddVoucherActivity (thông qua Observer trên LiveData của VoucherViewModel) nhận được kết quả.
     private void observeViewModel() {
         voucherViewModel.getIsLoading().observe(this, isLoading -> {
             progressBarAddVoucher.setVisibility(isLoading ? View.VISIBLE : View.GONE);
             buttonAddVoucher.setEnabled(!isLoading);
         });
 
-        voucherViewModel.getCreateVoucherSuccess().observe(this, isSuccess -> {
-            if (isSuccess) {
-                Toast.makeText(AddVoucherActivity.this, "Thêm voucher thành công!", Toast.LENGTH_SHORT).show();
-                finish();
+        // 5.1.16. Nếu thành công, AddVoucherActivity hiển thị Toast thông báo "Thêm voucher thành công!" và đóng màn hình (finish()). 
+        voucherViewModel.getErrorMessage().observe(this, errorMessage -> {
+            // Thêm kiểm tra isSuccess để không hiển thị lỗi nếu đã thành công
+            Boolean isSuccess = voucherViewModel.getCreateVoucherSuccess().getValue();
+            if (errorMessage != null && !errorMessage.isEmpty() && (isSuccess == null || !isSuccess)) {
+                if (progressBarAddVoucher.getVisibility() == View.GONE) { // Chỉ hiển thị khi không loading
+                    Toast.makeText(AddVoucherActivity.this, "Lỗi: " + errorMessage, Toast.LENGTH_LONG).show();
+                    voucherViewModel.clearErrorMessage(); // Xóa lỗi sau khi hiển thị
+                }
             }
         });
 
-        voucherViewModel.getErrorMessage().observe(this, errorMessage -> {
-            if (errorMessage != null && !errorMessage.isEmpty() && progressBarAddVoucher.getVisibility() == View.GONE) {
-                Toast.makeText(AddVoucherActivity.this, "Lỗi: " + errorMessage, Toast.LENGTH_LONG).show();
-                voucherViewModel.clearErrorMessage();
+        voucherViewModel.getCreateVoucherSuccess().observe(this, isSuccess -> {
+            // Chỉ xử lý khi isSuccess không null để tránh hành động không mong muốn khi LiveData mới được observe
+            if (isSuccess != null) {
+                if (isSuccess) {
+                    Toast.makeText(AddVoucherActivity.this, "Thêm voucher thành công!", Toast.LENGTH_SHORT).show();
+                    setResult(Activity.RESULT_OK);
+                    finish();
+                } else {
+                    // Nếu isSuccess là false, và không có lỗi cụ thể nào được set trong errorMessage
+                    // (ví dụ, onFailure mà không phải ConnectException)
+                    // bạn có thể muốn hiển thị một thông báo lỗi chung ở đây nếu errorMessage trống.
+                    // Tuy nhiên, handleApiError và onFailure trong repository đã set errorMessage rồi.
+                }
             }
         });
     }

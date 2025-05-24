@@ -22,25 +22,23 @@ CREATE TABLE drink_item
     FOREIGN KEY (category_id) REFERENCES drink_category (id)
 );
 
-CREATE TABLE Owner
-(
-    id         INT AUTO_INCREMENT PRIMARY KEY,
-    name       VARCHAR(50) NOT NULL,
-    phone      VARCHAR(15),
-    email      VARCHAR(100),
-    shift      VARCHAR(50),
-    account_id INT,
-    FOREIGN KEY (account_id) REFERENCES account (id) ON DELETE CASCADE
+CREATE TABLE account (
+                         id        INT AUTO_INCREMENT PRIMARY KEY,
+                         username  VARCHAR(50) UNIQUE NOT NULL,
+                         password  VARCHAR(100)       NOT NULL,
+                         role      VARCHAR(20) CHECK (role IN ('Owner', 'Staff')),
+                         is_active BOOLEAN DEFAULT TRUE
 );
 
-
-CREATE TABLE account
-(
-    id        INT AUTO_INCREMENT PRIMARY KEY,
-    username  VARCHAR(50) UNIQUE NOT NULL,
-    password  VARCHAR(100)       NOT NULL,
-    role      VARCHAR(20) CHECK (role IN ('Owner', 'Staff')),
-    is_active BOOLEAN DEFAULT TRUE
+-- 2. Sau đó mới tạo bảng Owner
+CREATE TABLE Owner (
+                       id         INT AUTO_INCREMENT PRIMARY KEY,
+                       name       VARCHAR(50) NOT NULL,
+                       phone      VARCHAR(15),
+                       email      VARCHAR(100),
+                       shift      VARCHAR(50),
+                       account_id INT,
+                       FOREIGN KEY (account_id) REFERENCES account (id) ON DELETE CASCADE
 );
 
 
