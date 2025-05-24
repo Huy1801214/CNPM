@@ -16,6 +16,8 @@ public interface DrinkItemRepository extends JpaRepository<DrinkItem, Integer> {
 
     Optional<DrinkItem> findByNameIgnoreCase(String name);
 
+    boolean existsByNameIgnoreCase(String name);
+
     List<DrinkItem> findByCategory_Id(Integer categoryId);
 
     List<DrinkItem> findByCategory_IdAndAvailableTrue(Integer categoryId);
