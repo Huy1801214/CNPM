@@ -1,0 +1,17 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout android:orientation="vertical"
+        android:layout_width="match_parent" android:layout_height="wrap_content">
+
+        <EditText android:id="@+id/edtName" android:hint="Tên món" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/edtDesc" android:hint="Mô tả" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/edtPrice" android:hint="Giá" android:inputType="numberDecimal" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/edtImageUrl" android:hint="Link ảnh" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/edtCategoryId" android:hint="ID danh mục" android:inputType="number" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <EditText android:id="@+id/edtToppings" android:hint="Topping IDs (vd: 1,2,3)" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <Switch android:id="@+id/switchAvailable" android:text="Đang bán?" android:checked="true" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <Button android:id="@+id/btnAddDrink" android:text="Thêm món" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+    </LinearLayout>
+</ScrollView>
