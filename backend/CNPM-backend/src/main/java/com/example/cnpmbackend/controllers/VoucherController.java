@@ -17,10 +17,14 @@ public class VoucherController {
     @Autowired
     private VoucherService voucherService;
 
+    // Huy (add voucher) 5.1.8. Backend Spring Boot nhận request. Spring MVC định tuyến đến VoucherController.createVoucher().
     @PostMapping
     public ResponseEntity<?> createVoucher(@RequestBody Voucher voucher) {
+        // 5.1.8. Jackson deserialize JSON payload thành Voucher (backend entity).
         try {
             Voucher savedVoucher = voucherService.createVoucher(voucher);
+            // 5.1.12. VoucherController trả về ResponseEntity (200 OK) chứa savedVoucher,
+            // được Jackson serialize thành JSON response.
             return ResponseEntity.ok(savedVoucher);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

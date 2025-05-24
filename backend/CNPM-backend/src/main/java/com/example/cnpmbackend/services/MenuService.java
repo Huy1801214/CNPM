@@ -108,4 +108,13 @@ public class MenuService {
                 .map(this::mapToDrinkItemDTO)
                 .orElse(null);
     }
+    @Transactional
+    public void deleteDrink(Integer drinkId) {
+        // Kiểm tra xem món có tồn tại không
+        DrinkItem drinkItem = drinkItemRepository.findById(drinkId)
+                .orElseThrow(() -> new IllegalArgumentException("Món đồ uống với ID " + drinkId + " không tồn tại."));
+
+        // Xóa món đồ uống (các liên kết trong drink_toppings sẽ tự động được xóa do CascadeType.ALL)
+        drinkItemRepository.delete(drinkItem);
+    }
 }

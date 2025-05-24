@@ -14,6 +14,8 @@ public class VoucherService {
     @Autowired
     private VoucherRepository voucherRepository;
 
+    // Huy (add voucher) 5.1.9. Backend thực hiện Bean Validation (nếu có @Valid) và
+    // sau đó VoucherService thực hiện các kiểm tra logic nghiệp vụ (mã trùng, ngày hợp lệ).
     public Voucher createVoucher(Voucher voucher) {
         if (voucherRepository.findByCode(voucher.getCode()).isPresent()) {
             throw new IllegalArgumentException("Voucher với mã " + voucher.getCode() + " đã tồn tại.");
@@ -24,6 +26,8 @@ public class VoucherService {
         if (voucher.getMaxUses() < 1) {
             throw new IllegalArgumentException("Số lần sử dụng tối đa phải lớn hơn hoặc bằng 1.");
         }
+        // 5.1.10. Nếu tất cả kiểm tra hợp lệ, VoucherService gọi VoucherRepository.save(voucher).
+        // 5.1.11. Hibernate (ORM) tạo và thực thi câu lệnh SQL INSERT để lưu Voucher entity vào database MySQL.
         return voucherRepository.save(voucher);
     }
 
