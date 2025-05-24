@@ -3,9 +3,13 @@ package com.example.cnpmfrontend.network;
 import com.example.cnpmfrontend.model.DrinkCategory;
 import com.example.cnpmfrontend.model.DrinkItem;
 import java.util.List;
+
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
+
+import com.example.cnpmfrontend.model.DrinkItemRequest;
 import com.example.cnpmfrontend.model.Voucher;
 import retrofit2.http.Body;
 import retrofit2.http.POST;
@@ -34,4 +38,7 @@ public interface ApiService {
 
     @POST("vouchers")
     Call<Voucher> createVoucher(@Body Voucher voucher);
+
+    @POST("menu")
+    Call<ResponseBody> addDrinkItem(@Body DrinkItemRequest request);
 }

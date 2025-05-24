@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.MenuFragment"> <!-- Sửa context nếu package khác -->
+    tools:context=".fragment.MenuFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewMenu"
@@ -45,5 +45,17 @@
         android:visibility="gone"
         tools:text="Đã xảy ra lỗi khi tải dữ liệu."
         tools:visibility="visible"/>
+
+    <!-- Thêm nút FloatingActionButton ở dưới bên phải -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddDrink"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/add_drink"
+        app:backgroundTint="@color/purple"
+        app:srcCompat="@drawable/ic_add"
+        android:layout_margin="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

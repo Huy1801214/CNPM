@@ -10,12 +10,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.cnpmfrontend.R;
 import com.example.cnpmfrontend.adapter.DrinkAdapter;
 import com.example.cnpmfrontend.viewmodel.MenuViewModel; // Đảm bảo đúng ViewModel
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
 
 public class MenuFragment extends Fragment {
@@ -34,26 +37,20 @@ public class MenuFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Khởi tạo ViewModel, sử dụng activity's scope nếu muốn chia sẻ ViewModel
-        // hoặc fragment's scope nếu chỉ dùng trong fragment này.
-        // Dùng requireActivity() để ViewModel tồn tại cùng Activity chứa nó.
+
+        // Lắng nghe kết quả thêm món từ AddDrinkFragment
+        getParentFragmentManager().setFragmentResultListener("requestKey", this, (requestKey, bundle) -> {
+            boolean drinkAdded = bundle.getBoolean("drink_added", false);
+            if (drinkAdded) {
+                // Tải lại danh sách đồ uống khi có món mới
+                menuViewModel.getAllDrinks();
+            }
+        });
+
         menuViewModel = new ViewModelProvider(requireActivity()).get(MenuViewModel.class);
     }
 
     @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_menu, container, false);
-
-        recyclerViewMenu = view.findViewById(R.id.recyclerViewMenu);
-        progressBar = view.findViewById(R.id.progressBar);
-        textViewError = view.findViewById(R.id.textViewError);
-
-        setupRecyclerView();
-        return view;
-    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -65,6 +62,26 @@ public class MenuFragment extends Fragment {
         if (menuViewModel.getAllDrinks().getValue() == null) { // Chỉ fetch nếu chưa có dữ liệu
             menuViewModel.getAllDrinks();
         }
+    }
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_menu, container, false);
+
+        recyclerViewMenu = view.findViewById(R.id.recyclerViewMenu);
+        progressBar = view.findViewById(R.id.progressBar);
+        textViewError = view.findViewById(R.id.textViewError);
+
+        FloatingActionButton fabAddDrink = view.findViewById(R.id.fabAddDrink);
+        fabAddDrink.setOnClickListener(v -> {
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, new AddDrinkFragment());
+            transaction.addToBackStack(null);
+            transaction.commit();
+        });
+
+        setupRecyclerView();
+        return view;
     }
 
     private void setupRecyclerView() {

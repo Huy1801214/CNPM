@@ -5,5 +5,8 @@
     <string name="title_cart">Giỏ Hàng</string>
     <string name="title_account">Tài Khoản</string>
     <string name="drink_image_description">Hình ảnh đồ uống</string>
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="add_drink">Thêm món</string>
+
 </resources>
