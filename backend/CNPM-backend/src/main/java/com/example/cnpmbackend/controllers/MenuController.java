@@ -7,7 +7,8 @@ import com.example.cnpmbackend.services.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import com.example.cnpmbackend.dto.DrinkCategoryDTO;
+import com.example.cnpmbackend.dto.DrinkItemDTO;
 import java.util.List;
 
 @RestController
@@ -46,6 +47,8 @@ public class MenuController {
         }
         return ResponseEntity.ok(drink);
     }
+
+    // thêm món
     @PostMapping
     public ResponseEntity<String> addDrink(@RequestBody DrinkItemRequestDTO dto) {
         String result = menuService.addDrink(dto);
@@ -53,5 +56,17 @@ public class MenuController {
                 ? ResponseEntity.ok(result)
                 : ResponseEntity.badRequest().body(result);
     }
+
+    
+        @DeleteMapping("/drinks/{drinkId}")
+    public ResponseEntity<?> deleteDrink(@PathVariable Integer drinkId) {
+        try {
+            menuService.deleteDrink(drinkId);
+            return ResponseEntity.ok("Xóa món đồ uống thành công.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Lỗi hệ thống: " + e.getMessage());
+        }
 
 }
